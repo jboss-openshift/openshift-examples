@@ -111,7 +111,7 @@
                 <level name="ERROR"/>
             </logger>
             <root-logger>
-                <level name="DEBUG"/>
+                <level name="INFO"/>
                 <handlers>
                     <handler name="ASYNC"/>
                 </handlers>
@@ -158,9 +158,6 @@
                         <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
                     </driver>
                     <driver name="postgresql" module="org.postgresql">
-                        <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
-                    </driver>
-                    <driver name="postgresql94" module="org.postgresql94">
                         <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
                     </driver>
                 </drivers>
