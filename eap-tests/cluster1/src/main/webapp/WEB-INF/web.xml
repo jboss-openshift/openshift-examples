@@ -20,6 +20,11 @@
   	<servlet-class>org.openshift.examples.cluster1.ShowHeaders</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>Delay</servlet-name>
+    <servlet-class>org.openshift.examples.cluster1.Delay</servlet-class>
+  </servlet>
+
   <servlet-mapping>
   	<servlet-name>Hi</servlet-name>
   	<url-pattern>/Hi</url-pattern>
@@ -33,5 +38,10 @@
   <servlet-mapping>
   	<servlet-name>ShowHeaders</servlet-name>
   	<url-pattern>/ShowHeaders</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Delay</servlet-name>
+    <url-pattern>/Delay</url-pattern>
   </servlet-mapping>
 </web-app>
