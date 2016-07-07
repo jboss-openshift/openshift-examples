@@ -48,13 +48,13 @@
         {
             "description": "Git source URI for application",
             "name": "SOURCE_REPOSITORY_URL",
-            "value": "https://github.com/keycloak/keycloak-examples",
+            "value": "https://github.com/redhat-developer/redhat-sso-quickstarts",
             "required": true
         },
         {
             "description": "Git branch/tag reference",
             "name": "SOURCE_REPOSITORY_REF",
-            "value": "0.4-openshift",
+            "value": "7.0.x-ose",
             "required": false
         },
         {
@@ -166,19 +166,7 @@
         {
             "description": "Artifacts",
             "name": "ARTIFACT_DIR",
-            "value": "app-jee/target,service-jaxrs/target,app-profile-jee/target,app-profile-jee-saml/target",
-            "required": false
-        },
-        {
-            "description": "maven",
-            "name": "MAVEN_ARGS_APPEND",
-            "value": "",
-            "required": false
-        },
-        {
-            "description": "SSO Location",
-            "name": "SSO_URL",
-            "value": "https://secure-sso.cloudapps.example.com/auth",
+            "value": "app-jee-jsp/target,service-jee-jaxrs/target,app-profile-jee-jsp/target,app-profile-saml-jee-jsp/target",
             "required": false
         },
         {
@@ -473,7 +461,7 @@
                             },
                             {
                                 "name": "MAVEN_ARGS_APPEND",
-                                "value": "${MAVEN_ARGS_APPEND}"
+                                "value": ""
                             }
                         ]
                     }
@@ -950,7 +938,7 @@
                                     },
                                     {
                                         "name": "SSO_URL",
-                                        "value": "${SSO_URL}"
+                                        "value": "https://${SSO_HOSTNAME_HTTPS}/auth"
                                     },
                                     {
                                         "name": "SSO_SERVICE_URL",
@@ -978,7 +966,11 @@
                                     },
                                     {
                                         "name": "SSO_SAML_KEYSTORE",
-                                        "value": "/etc/sso-saml-secret-volume/keystore.jks"
+                                        "value": "keystore.jks"
+                                    },
+                                    {
+                                        "name": "SSO_SAML_KEYSTORE_DIR",
+                                        "value": "/etc/sso-saml-secret-volume"
                                     },
                                     {
                                         "name": "SSO_SAML_CERTIFICATE_NAME",
