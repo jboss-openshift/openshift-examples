@@ -1,0 +1,16 @@
+<realm name="demo">
+    <realm-public-key>MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArujsIJfA8JYuInj9r1InmUsWZPewBeTOcVPB8dj5CxanDwNANtqPKaSKUFRUm/FWkcelkQlQSmETauxHVG3fYCqpsCWe9fte7JQal/qwGfUca0tkVUIfd7rfiCa1Z2JdgUsiVCeD4PJjM2YWzzrm1inoUBXSXavzBzV9GsinMXjtjjeihSCJwxNyyEn7wBSO9RbYMjVvkGbE5YOHDqgsnIL/nNwV59kvMSRU1i6pwqrbkltKYx5jkCJSzIaSgJv0lXuhbAzT/hLdDwIxjC1HF42/SeJRY3VPKvUvZceIJEs4vBljkujmHmjgSjAXRiMYbAT2AioRmCR5/ddUtb3BPQIDAQAB</realm-public-key>
+    <auth-server-url>https://secure-sso-demo.cloudapps.example.com/auth</auth-server-url>
+    <ssl-required>external</ssl-required>
+    <disable-trust-manager>true</disable-trust-manager>
+    <allow-any-hostname>true</allow-any-hostname>
+</realm>
+<secure-deployment name="app-profile-jee.war">
+    <realm>demo</realm>
+    <resource>app-profile-jee</resource>
+    <auth-server-url>https://secure-sso-demo.cloudapps.example.com/auth</auth-server-url>
+    <allow-any-hostname>true</allow-any-hostname>
+    <enable-basic-auth>true</enable-basic-auth>
+    <credential name="secret">KICe8sS2</credential>
+    <enable-cors>false</enable-cors>
+</secure-deployment>

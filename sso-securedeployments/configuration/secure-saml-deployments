@@ -1,0 +1,27 @@
+<secure-deployment name="app-profile-jee-saml.war">
+    <SP entityID="app-profile-jee-saml" sslPolicy="EXTERNAL">
+        <Keys>
+            <Key signing="true">
+                <PrivateKeyPem>MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCTTNsa16b4h//+PDQ5OzMhylfjJ04ILQ96qS26ViSbikbSoRUEH4e4yPvJ5MFzUoIOXbGb5Dos95PNS5+TsFcUSDhG7WXc9JbvQvIkF8fLmezR1gTkzUjQC+/2u+OALVVOyIGZ1eH60ghAM+Scgqlalyzv1c85REYu+4aN/KPTwRlYW8BnNiuTeUrCRx4MelhhvmL7PEVHPkrqh/+H2BD0LOyWo13u7HG/LL/JO00WTYnv3tWTeEq1uIBOpz356AQdwRCvMAN6M9iiXmR7cMDU09EGoUaS7mfbXmLZ5jNi9VXXGaJ8gP/eXO81Y3RtaU7GXvhWw+dZr/Yk8/eFnqnlAgMBAAECggEBAI9+KFeuyx6DRhMBzRIPpJD/T7yeVnrKgrDITB6gukq3WqTnfNSmbo3JZNdZvEY+kymxhkrJ+w5BJD+yssKp3zqH3CLkMv4bW0m7Wq1kaSLjUPtdVSka/hqF9n7SrB36i4cS9oXJALpZjuYUZ1k8RARXDtSY4aT06LXuGzcIbQPjNbYUno6JMMyQ1jv24i4ThzQv8vLdFIAhwXVFDMBNWgZCoR4rtymIVAysqh6TM+u8gEkonKRMM93jfiCNYFpLeuRanqRGHHrD7w543yTpFEM8jpa/Y1KW2I1oGilUcvITtBcW1d0yb7uHSKGW+pJJC7dZzYgBQLcVYwoWOXBbXUECgYEA04kUoUxHkZqu+Kdu7j2c6dE85J12dAL63hPyNrRLKquxgvx4TPhTKHF+CmNlYALhdAEKV8sOGYy7VQ/iH8l+AbjyWXOQNP8M/3QQ4OW/WHG6fZLjRIHkOxXfQN9IXeFTv1QAxkuIinIr3TVJ6OmtNLKtjqEZbO27D+vH5MYqEvUCgYEAskM3h1kqbECuHME5YnXiREIBMLl+XV2Qfel5MLQrQ0G7HHtZayvscrFmdMc/0/A+AjCakvWM1yKJIdiQtKrmNIyqzsReYhBHqVyoI0oVJtlcnJs6KAYVjeJ7KSSPnTCrhQaqBkAWH60pukgeNjdedMUS9vcE5KQT8WaeXAeBRTECgYBwVNEhvpIa3huga7laxlk3SSee94dZn+N8Xvc22ZM4+6fuOQfhR9VRGsOl3JaO37i9k3fcmzXHl5Y7W43m92b0nzQDEH05x18toIL+CsMLwokX+hK55IhAYCMIHgod4HRKm981bhL6AhsNAylWiBC0dVX48c/AqpW1pK2n7RuWqQKBgQCUz2HqfffZGIGAhZjW5du16Xe+6gpf/Hxjb+R4UN8QrS160EnMGoWvFQKXl8Fjtli9UT+oUI17Blx9waDDAStdUNRB+VFlAXwhGLVPiEdx/9+86CQ7RyD1KcxwgxHUQc3dJbwHrbYKSW7dD9kQn1YdmmqDeaA/Ee2IBodKAgXa8QKBgQClyOfpZ9qK9xJN9yG3YtE3UQLQBoPGdFO+ASrjI9xB5d8tUsP+LmLFHJoQbFeHI7oCh16PHuO6uvuSL63thhdzxCm1XK8nJBZTvued8mtC9jMuo6awuKXcLfOk8ojqW1DiEzORunpiupCjQKAhRnQ0n3rd5IrEnPNyoGy4iGB1FA==</PrivateKeyPem>
+                <CertificatePem>MIIDdTCCAl2gAwIBAgIEZ6Si8TANBgkqhkiG9w0BAQsFADBrMQswCQYDVQQGEwJVUzELMAkGA1UECBMCTkMxEDAOBgNVBAcTB1JhbGVpZ2gxFjAUBgNVBAoTDW15Y29tcGFueS5jb20xFDASBgNVBAsTC0VuZ2luZWVyaW5nMQ8wDQYDVQQDEwZqc21pdGgwHhcNMTUwNTE5MTgwNjE4WhcNMTUwODE3MTgwNjE4WjBrMQswCQYDVQQGEwJVUzELMAkGA1UECBMCTkMxEDAOBgNVBAcTB1JhbGVpZ2gxFjAUBgNVBAoTDW15Y29tcGFueS5jb20xFDASBgNVBAsTC0VuZ2luZWVyaW5nMQ8wDQYDVQQDEwZqc21pdGgwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCTTNsa16b4h//+PDQ5OzMhylfjJ04ILQ96qS26ViSbikbSoRUEH4e4yPvJ5MFzUoIOXbGb5Dos95PNS5+TsFcUSDhG7WXc9JbvQvIkF8fLmezR1gTkzUjQC+/2u+OALVVOyIGZ1eH60ghAM+Scgqlalyzv1c85REYu+4aN/KPTwRlYW8BnNiuTeUrCRx4MelhhvmL7PEVHPkrqh/+H2BD0LOyWo13u7HG/LL/JO00WTYnv3tWTeEq1uIBOpz356AQdwRCvMAN6M9iiXmR7cMDU09EGoUaS7mfbXmLZ5jNi9VXXGaJ8gP/eXO81Y3RtaU7GXvhWw+dZr/Yk8/eFnqnlAgMBAAGjITAfMB0GA1UdDgQWBBREskqT+BpKsyMPJfyJi0LM+1MGoDANBgkqhkiG9w0BAQsFAAOCAQEADgRJMqxZ6+/jSEW/XW36UY0dPXq7xeT5ae8HgqjmxmNWG9FZNMo4QETlsNh8yF/R6yfyCDQHhC2bhFvm3095ob/R3rHEPQEhXp5aKElW0QY4fjtZ/9TN8Lzx+qgjFnowwE+KT9Z5p+84r4cgd9lLACaqVeCXic1UN0w0e0GE0C+KQveizGtJup2Ld7IjuupKlvjUub2/48X69lM4ZFB/bYarfT8h7zkOWq6C1EqKZYclgvYd4vjLBO1AqB17okNEI4fBsNyyXoJsyO6C3fLIjtij0Ql0pvmnpihU6mcLPvfr1b1SKb5euXYQtlYzlZOJAXF3pLfpCXZNST6zzOP8ag==</CertificatePem>
+            </Key>
+        </Keys>
+        <!--Keys>
+            <Key signing="true" encryption="true">
+                <KeyStore file="/etc/sso-saml-secret-volume/keystore.jks" password="mykeystorepass">
+                    <PrivateKey alias="jboss" password="mykeystorepass"/>
+                    <Certificate alias="jboss"/>
+                </KeyStore>
+            </Key>
+        </Keys-->
+        <IDP entityID="idp" signatureAlgorithm="RSA_SHA256" signatureCanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#">
+            <SingleSignOnService signRequest="true" validateResponseSignature="true" requestBinding="POST" bindingUrl="https://secure-sso-demo.cloudapps.example.com/auth/realms/demo/protocol/saml"/>
+            <SingleLogoutService validateRequestSignature="true" validateResponseSignature="true" signRequest="true" signResponse="true" requestBinding="POST" responseBinding="POST" postBindingUrl="https://secure-sso-demo.cloudapps.example.com/auth/realms/demo/protocol/saml" redirectBindingUrl="https://secure-sso-demo.cloudapps.example.com/auth/realms/demo/protocol/saml"/>
+            <Keys>
+                <Key signing="true" >
+                    <CertificatePem>MIIClzCCAX8CBgFTeld7pDANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDDARkZW1vMB4XDTE2MDMxNTEyNTI0NloXDTI2MDMxNTEyNTQyNlowDzENMAsGA1UEAwwEZGVtbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK7o7CCXwPCWLiJ4/a9SJ5lLFmT3sAXkznFTwfHY+QsWpw8DQDbajymkilBUVJvxVpHHpZEJUEphE2rsR1Rt32AqqbAlnvX7XuyUGpf6sBn1HGtLZFVCH3e634gmtWdiXYFLIlQng+DyYzNmFs865tYp6FAV0l2r8wc1fRrIpzF47Y43ooUgicMTcshJ+8AUjvUW2DI1b5BmxOWDhw6oLJyC/5zcFefZLzEkVNYuqcKq25JbSmMeY5AiUsyGkoCb9JV7oWwM0/4S3Q8CMYwtRxeNv0niUWN1Tyr1L2XHiCRLOLwZY5Lo5h5o4EowF0YjGGwE9gIqEZgkef3XVLW9wT0CAwEAATANBgkqhkiG9w0BAQsFAAOCAQEARZOR05B90p1/xZRIUz3fKwkdo3A4J235tEhxID8Kvy0iIR8PDJXu4UGYQoLgV1QnTbWSakIjlScdrmtUp+xxe6aTXYb1xQLD46Q/vvX++f8uZ48hisF1vrW7v02pcTGBObZJuPla527GDdwTON9qJiKGZuzJkxT3XWtEWiwTo8HSpi4gnfKsBWQPximrKv1e8npObEMrFoGtcjjkPKboR7jk5B40ddATYnd/0j9f/qJurPKuyyJJoggN42WPbYp0aSoyIK21NCdg20SoxllDAAgI09zku0vDYrMXJVpJLB0BFd4DQObuTxWtQK6Cvx2LmSiaubbnXtX5G3+Eb0eVAA==</CertificatePem>
+                </Key>
+            </Keys>
+        </IDP>
+    </SP>
+</secure-deployment>
