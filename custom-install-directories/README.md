@@ -3,4 +3,9 @@ contains custom war, ear, jar, or rar modules in deployments/ directory present 
 the subdirectory of the source/ directory.
 
 Example environment variable usage:
-CUSTOM\_INSTALL\_DIRECTORIES=custom,
+
+  CUSTOM\_INSTALL\_DIRECTORIES=custom,
+
+or
+
+  CUSTOM\_INSTALL\_DIRECTORIES=foo,bar
