@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<artifactId>teiid-quickstart-parent</artifactId>
+		<groupId>org.jboss.teiid.quickstart</groupId>
+		<version>3.0.0.redhat-63-10</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>jdg-remote-cache-materialization</artifactId>
+	<name>JDG Remote Cache Materialization Quickstart</name>
+	<description>This quickstart demonstrates how to use a remote JDG cache for materialization</description>
+
+    <properties>
+
+        <!-- Defines the main class to be execute when running java -jar 
+            command -->
+         <main.class.remote-query>org.jboss.as.quickstarts.datagrid.hotrod.query.AddressBookManager</main.class.remote-query>
+
+    </properties>
+    
+ 	 <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-bom</artifactId>
+                <version>${version.org.infinispan.6}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>    
+
+    <dependencies>   
+        <dependency>
+              <groupId>org.infinispan</groupId>
+              <artifactId>infinispan-commons</artifactId>
+              <scope>provided</scope>
+    	</dependency>           
+        <dependency>
+              <groupId>org.infinispan</groupId>
+              <artifactId>infinispan-query</artifactId>
+              <scope>provided</scope>
+        </dependency>   
+        <dependency>
+              <groupId>org.infinispan</groupId>
+              <artifactId>infinispan-query-dsl</artifactId>
+              <scope>provided</scope>
+        </dependency>   
+        <dependency>
+              <groupId>org.infinispan</groupId>
+              <artifactId>infinispan-client-hotrod</artifactId>
+              <scope>provided</scope>
+        </dependency>      
+       <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-remote-query-client</artifactId>
+        </dependency>         
+        <dependency>
+			  <groupId>org.infinispan.protostream</groupId>
+			  <artifactId>protostream</artifactId>
+              <scope>provided</scope>
+        </dependency>   
+ 		<dependency>
+		   	<groupId>org.hibernate</groupId>
+		   	<artifactId>hibernate-search-engine</artifactId>
+		   	<scope>provided</scope>
+		</dependency>	
+		
+	</dependencies>
+
+	<build>
+
+		<finalName>${project.artifactId}-pojos</finalName>
+		<plugins>
+        
+			<!-- add the vdb to the repo -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>make-a-jar</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+        
+
+
+            <!-- This plugin permits the execution of this quickstart 
+                through mvn exec:java command -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${version.org.codehaus.mojo.exec.plugin}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <classpathScope>test</classpathScope>
+                    <mainClass>${main.class.remote-query}</mainClass>
+                </configuration>
+            </plugin>
+
+ 
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>kits/jboss-as7-dist.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<version>2.4.1</version>
+				<executions>
+					<execution>
+						<id>create-assemblies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+
+</project>
