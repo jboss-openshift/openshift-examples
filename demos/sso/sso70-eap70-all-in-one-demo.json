@@ -452,7 +452,7 @@
                         "from": {
                             "kind": "ImageStreamTag",
                             "namespace": "${IMAGE_STREAM_NAMESPACE}",
-                            "name": "jboss-eap70-openshift:1.5"
+                            "name": "jboss-eap70-openshift:1.6"
                         },
                         "env": [
                             {
@@ -520,7 +520,7 @@
                              "from": {
                                 "kind": "ImageStreamTag",
                                 "namespace": "${IMAGE_STREAM_NAMESPACE}",
-                                "name": "redhat-sso70-openshift:1.4"
+                                "name": "redhat-sso70-openshift:1.5"
                             }
                         }
                     },
