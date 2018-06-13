@@ -1,0 +1,414 @@
+#!/bin/bash
+
+BLACK='\033[0;30m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+DEFAULT='\033[0m'
+
+if [ "${SCRIPT_DEBUG}" = "true" ] ; then
+    set -x
+    echo "Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed"
+fi
+
+function log_warning() {
+  local message="${1}"
+
+  echo >&2 -e "${YELLOW}WARN ${message}${DEFAULT}"
+}
+
+function log_error() {
+  local message="${1}"
+
+  echo >&2 -e "${RED}ERROR ${message}${DEFAULT}"
+}
+
+function log_info() {
+  local message="${1}"
+
+  echo >&2 -e "INFO ${message}"
+}
+
+# common shell routines for s2i scripts
+
+# insert settings for HTTP proxy into settings.xml if supplied as
+# separate variables HTTP_PROXY_HOST, _PORT, _SCHEME, _USERNAME,
+# _PASSWORD, _NONPROXYHOSTS
+function configure_proxy_write() {
+  local settings="${1:-$HOME/.m2/settings.xml}"
+  if [ -n "$HTTP_PROXY_HOST" -a -n "$HTTP_PROXY_PORT" ]; then
+    xml="<proxy>\
+         <id>genproxy</id>\
+         <active>true</active>\
+         <protocol>${HTTP_PROXY_SCHEME:-http}</protocol>\
+         <host>$HTTP_PROXY_HOST</host>\
+         <port>$HTTP_PROXY_PORT</port>"
+    if [ -n "$HTTP_PROXY_USERNAME" -a -n "$HTTP_PROXY_PASSWORD" ]; then
+      xml="$xml\
+         <username>$HTTP_PROXY_USERNAME</username>\
+         <password>$HTTP_PROXY_PASSWORD</password>"
+    fi
+    if [ -n "$HTTP_PROXY_NONPROXYHOSTS" ]; then
+      xml="$xml\
+         <nonProxyHosts>$HTTP_PROXY_NONPROXYHOSTS</nonProxyHosts>"
+    fi
+  xml="$xml\
+       </proxy>"
+    local sub="<!-- ### configured http proxy ### -->"
+    sed -i "s^${sub}^${xml}^" "$settings"
+  fi
+}
+
+# break a supplied url (as would be in HTTP_PROXY) up into constituent bits and
+# export the bits as variables that match our old scheme for configuring proxies
+# $settings - file to edit
+function configure_proxy_url() {
+  local url="$1"
+  local default_scheme="$2"
+  local default_port="$3"
+  if [ -n "$url" ] ; then
+    #[scheme://][user[:password]@]host[:port][/path][?params]
+    eval $(echo "$1" | sed -e "s+^\(\([^:]*\)://\)\?\(\([^:@]*\)\(:\([^@]*\)\)\?@\)\?\([^:/?]*\)\(:\([^/?]*\)\)\?.*$+HTTP_PROXY_SCHEME='\2' HTTP_PROXY_USERNAME='\4' HTTP_PROXY_PASSWORD='\6' HTTP_PROXY_HOST='\7' HTTP_PROXY_PORT='\9'+")
+
+    HTTP_PROXY_SCHEME="${HTTP_PROXY_SCHEME:-$default_scheme}"
+    HTTP_PROXY_PORT="${HTTP_PROXY_PORT:-$default_port}"
+
+    local noProxy="${no_proxy:-${NO_PROXY}}"
+    if [ -n "$noProxy" ]; then
+        noProxy="${noProxy//,/|}"
+        noProxy="${noProxy//|./|*.}"
+        noProxy="${noProxy/#./*.}"
+        HTTP_PROXY_NONPROXYHOSTS="${noProxy}"
+    fi
+  fi
+}
+
+function configure_proxy() {
+  local httpsProxy="${https_proxy:-${HTTPS_PROXY}}"
+  local httpProxy="${http_proxy:-${HTTP_PROXY}}"
+  local settings="$1"
+
+  if [ -n "${httpsProxy}" ] ; then
+    configure_proxy_url "${httpsProxy}" https 443
+  else
+    if [ -n "${httpProxy}" ] ; then
+      configure_proxy_url "${httpProxy}" http 80
+    fi
+  fi
+  configure_proxy_write "${settings}"
+}
+
+function find_env() {
+  local var=${!1}
+  echo "${var:-$2}"
+}
+
+# insert settings for mirrors/repository managers into settings.xml if supplied
+function configure_mirrors() {
+  local settings="${1-$HOME/.m2/settings.xml}"
+  local counter=1
+
+  # Be backwards compatible
+  if [ -n "${MAVEN_MIRROR_URL}" ]; then
+    local mirror_id=$(find_env "MAVEN_MIRROR_ID" "mirror.default")
+    local mirror_of=$(find_env "MAVEN_MIRROR_OF" "external:*")
+
+    configure_mirror "${settings}" "${mirror_id}" "${MAVEN_MIRROR_URL}" "${mirror_of}"
+  fi
+
+  IFS=',' read -a maven_mirror_prefixes <<< ${MAVEN_MIRRORS}
+  for maven_mirror_prefix in ${maven_mirror_prefixes[@]}; do
+    local mirror_id=$(find_env "${maven_mirror_prefix}_MAVEN_MIRROR_ID" "mirror${counter}")
+    local mirror_url=$(find_env "${maven_mirror_prefix}_MAVEN_MIRROR_URL")
+    local mirror_of=$(find_env "${maven_mirror_prefix}_MAVEN_MIRROR_OF" "external:*")
+
+    if [ -z "${mirror_url}" ]; then
+      echo "WARNING: Variable \"${maven_mirror_prefix}_MAVEN_MIRROR_URL\" not set. Skipping maven mirror setup for the prefix \"${maven_mirror_prefix}\"."
+    else
+      configure_mirror "${settings}" "${mirror_id}" "${mirror_url}" "${mirror_of}"
+    fi
+
+    counter=$((counter+1))
+  done
+}
+
+function configure_mirror() {
+  local settings="${1}"
+  local mirror_id="${2}"
+  local mirror_url="${3}"
+  local mirror_of="${4}"
+
+  local xml="<mirror>\n\
+      <id>${mirror_id}</id>\n\
+      <url>${mirror_url}</url>\n\
+      <mirrorOf>${mirror_of}</mirrorOf>\n\
+    </mirror>\n\
+    <!-- ### configured mirrors ### -->"
+
+  sed -i "s|<!-- ### configured mirrors ### -->|$xml|" "${settings}"
+
+}
+
+# copy all artifacts of types, specified as the second up to n-th
+# argument of the routine into the $DEPLOY_DIR directory
+# Requires: source directory expressed in the form of absolute path!
+function copy_artifacts() {
+  dir=$1
+  types=
+  shift
+  while [ $# -gt 0 ]; do
+    types="$types;$1"
+    shift
+  done
+  
+  for d in $(echo $dir | tr "," "\n")
+  do
+    shift
+    local regex="^\/"
+    if [[ ! "$d" =~ $regex ]]; then
+      echo "$FUNCNAME: Absolute path required for source directory \"$d\"!"
+      exit 1
+    fi
+    for t in $(echo $types | tr ";" "\n")
+    do
+      echo "Copying all $t artifacts from $d directory into $DEPLOY_DIR for later deployment..."
+      cp -rfv $d/*.$t $DEPLOY_DIR 2> /dev/null
+    done
+  done
+}
+
+# handle incremental builds. If we have been passed build artifacts, untar
+# them over the supplied source.
+manage_incremental_build() {
+    if [ -d /tmp/artifacts ]; then
+        echo "Expanding artifacts from incremental build..."
+        ( cd /tmp/artifacts && tar cf - . ) | ( cd ${HOME} && tar xvf - )
+        rm -rf /tmp/artifacts
+    fi
+}
+
+# s2i 'save-artifacts' routine
+s2i_save_build_artifacts() {
+    cd ${HOME}
+    tar cf - .m2
+}
+
+# optionally clear the local maven repository after the build
+clear_maven_repository() {
+    mcr=$(echo "${MAVEN_CLEAR_REPO}" | tr [:upper:] [:lower:])
+    if [ "${mcr}" = "true" ]; then
+        rm -rf ${HOME}/.m2/repository/*
+    fi
+}
+
+# set local repository path for maven to the provided path
+function set_local_repo_path() {
+    local settings="${1}"
+    local local_path="${2}"
+    local xml="\n\
+    <localRepository>${local_path}</localRepository>"
+    sed -i "s|<!-- ### configured local repository ### -->|${xml}|" "${settings}"
+}
+
+# Install custom RH-SSO adapters specified as override argument
+function install_custom_rh_sso_adapters() {
+    local override_arg="${1}"
+    local adapter_version=""
+    local eap_launch_script="/opt/eap/bin/openshift-launch.sh"
+    # Code line of EAP launch script to insert overrides before
+    local eap_ls_anchor='if \[ "${SPLIT_DATA^^}" = "TRUE" \]; then'
+    local override_dir="/tmp/overridden_adapters"
+    # Remove the default version of the RH-SSO adapters
+    local override_stmnt="\\\n# Remove the default version of the RH-SSO adapters\n"
+    override_stmnt+="rm -rf /opt/eap/modules/system/add-ons/keycloak\n"
+    override_stmnt+="# Expand the custom version of the RH-SSO adapters\n"
+    # Array to hold the final depending on version generated URLs to RH-SSO adapters
+    local -a adapter_urls
+    local redhat_ga_maven_repo="https://maven.repository.redhat.com/ga"
+    local saml_dist_adapter="keycloak-saml-wildfly-adapter-dist"
+    local wildfly_dist_adapter="keycloak-wildfly-adapter-dist"
+    local latest_pattern="^(latest|LATEST)$"
+    local version_pattern="^([0-9].){3}Final-redhat-[0-9]$"
+    local url_pattern="^(http(|s)://.*\.zip,)+http(|s)://.*\.zip$"
+    if [[ "${override_arg}" =~ $latest_pattern ]]; then
+        adapter_version=$(curl -s ${redhat_ga_maven_repo}/org/keycloak/${saml_dist_adapter}/maven-metadata.xml | sed -nr 's/.*<latest>(([0-9]\.){3}Final-redhat-[0-9]).*/\1/p')
+    elif [[ "${override_arg}" =~ $version_pattern ]]; then
+        adapter_version="${override_arg}"
+    fi
+    if [[ "${override_arg}" =~ $url_pattern ]]; then
+        IFS=$',' read -a adapter_urls <<< "${override_arg}"
+    elif [ -n "${adapter_version}" ]; then
+        adapter_urls+=("${redhat_ga_maven_repo}/org/keycloak/${saml_dist_adapter}/${adapter_version}/${saml_dist_adapter}-${adapter_version}.zip")
+        adapter_urls+=("${redhat_ga_maven_repo}/org/keycloak/${wildfly_dist_adapter}/${adapter_version}/${wildfly_dist_adapter}-${adapter_version}.zip")
+    fi
+    if [ -n "${adapter_version}" ]; then
+        log_info "Going to install the \"${adapter_version}\" version of RH-SSO adapters."
+    else
+        if [ -n "${adapter_urls}" ]; then
+            log_info "Going to install the following ZIP archives:"
+            for url in "${adapter_urls[@]}"
+            do
+                log_info "${url}"
+            done
+        else
+            log_error "Unable to retrieve some of the specified \"${override_arg}\" archives."
+            exit 1
+        fi
+    fi
+    # Create directory to hold the ZIP archives with updated RH-SSO adapters
+    mkdir -p "${override_dir}"
+    # Obtain the archives
+    for adapter_url in "${adapter_urls[@]}"
+    do
+        cd "${override_dir}"
+        local adapter_archive=$(basename "${adapter_url}")
+        curl -sO "${adapter_url}"
+        if [ "$?" -eq "0" ]; then
+            log_info "Successfully retrieved the ${adapter_archive} archive."
+            override_stmnt+="unzip -qo ${override_dir}/${adapter_archive} -d \${JBOSS_HOME}\n"
+        else
+            log_warning "Failed to retrieve the ${adapter_archive} archive!"
+            exit 1
+        fi
+        cd - >/dev/null
+    done
+
+    # Enhance the EAP launch script
+    sed -i "/${eap_ls_anchor}/i ${override_stmnt}\n" "${eap_launch_script}"
+}
+
+source /opt/rh/rh-maven35/enable
+
+LOCAL_SOURCE_DIR=/tmp/src
+
+# Resulting WAR files will be deployed to /opt/eap/standalone/deployments
+DEPLOY_DIR=$JBOSS_HOME/standalone/deployments
+
+# JBoss AS data dir. Can be overridden.
+DATA_DIR=${DATA_DIR:-$JBOSS_HOME/standalone/data}
+
+# App data dir. Can be overridden.
+APP_DATADIR=${APP_DATADIR:-data}
+
+# the subdirectory within LOCAL_SOURCE_DIR from where we should copy build
+# artifacts (*.war, *.jar)
+ARTIFACT_DIR=${ARTIFACT_DIR:-target}
+
+if [ -f $LOCAL_SOURCE_DIR/configuration/settings.xml ]; then
+  echo "Copying maven config file from project..."
+  mkdir -p $HOME/.m2
+  mv $LOCAL_SOURCE_DIR/configuration/settings.xml $HOME/.m2
+fi
+
+
+configure_proxy
+configure_mirrors
+
+manage_incremental_build
+if [ -n "${SSO_ADAPTERS_OVERRIDES}" ]; then
+  install_custom_rh_sso_adapters "${SSO_ADAPTERS_OVERRIDES}"
+fi
+
+# If a pom.xml is present, this is a normal build scenario
+# so run maven.
+if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
+  pushd $LOCAL_SOURCE_DIR &> /dev/null
+
+  # Add JVM default options
+  export MAVEN_OPTS="${MAVEN_OPTS:-$(/opt/run-java/java-default-options)}"
+  MAVEN_ARGS=${MAVEN_ARGS--e -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga package}
+
+  # Use maven batch mode (CLOUD-579)
+  # Always force IPv4 (CLOUD-188)
+  # Append user-supplied arguments (CLOUD-412)
+  MAVEN_ARGS="$MAVEN_ARGS --batch-mode -Djava.net.preferIPv4Stack=true ${MAVEN_ARGS_APPEND}"
+
+  echo "Found pom.xml... attempting to build with 'mvn ${MAVEN_ARGS}'"
+  echo "Using MAVEN_OPTS '${MAVEN_OPTS}'"
+
+  echo "Using $(mvn --version)"
+
+  # Execute the actual build
+  mvn $MAVEN_ARGS
+
+  ERR=$?
+  if [ $ERR -ne 0 ]; then
+    echo "Aborting due to error code $ERR from Maven build"
+    exit $ERR
+  fi
+
+  # Expand each ARTIFACT_DIR entry to absolute path by prefixing it with $LOCAL_SOURCE_DIR
+  IFS=',' read -a artifact_dir_entries <<< "$ARTIFACT_DIR"
+  artifact_dir_entries=($(printf "$LOCAL_SOURCE_DIR/%s\n" "${artifact_dir_entries[@]}" | tr '\n' ','))
+
+  # Copy built artifacts (if any!) from the target/ directory
+  # (or $ARTIFACT_DIR if specified) to the
+  # $JBOSS_HOME/standalone/deployments/ directory for later deployment
+  # Use artifact directories in absolute path form when copying artifacts
+  copy_artifacts "${artifact_dir_entries[@]}" war ear rar jar
+
+  # optionally clear the local maven repository after the build
+  clear_maven_repository
+
+  popd &> /dev/null
+else
+  copy_artifacts "$LOCAL_SOURCE_DIR" war ear rar jar
+fi
+
+# copy app data, if specified
+if [ -n "$APP_DATADIR" ] && [ -d "$LOCAL_SOURCE_DIR/$APP_DATADIR" ]; then
+  echo "Copying app data from ${APP_DATADIR} to ${DATA_DIR}..."
+  rsync -rl --out-format='%n' "$LOCAL_SOURCE_DIR/$APP_DATADIR/" "$DATA_DIR"
+  chmod -R g+rwX $DATA_DIR
+fi
+
+# Copy (probably binary) artifacts from the deployments/
+# directory to the $JBOSS_HOME/standalone/deployments/
+# directory for later deployment
+copy_artifacts "$LOCAL_SOURCE_DIR/deployments" war ear rar jar
+
+if [ -d $LOCAL_SOURCE_DIR/configuration ]; then
+  file_count=$(ls -1 $LOCAL_SOURCE_DIR/configuration | wc -l)
+  if [ $file_count -gt 0 ]; then
+    echo "Copying config files from project..."
+    cp -v $LOCAL_SOURCE_DIR/configuration/* $JBOSS_HOME/standalone/configuration/
+  fi
+fi
+
+if [ -d $LOCAL_SOURCE_DIR/modules ]; then
+  echo "Copying modules from project..."
+  cp -vr $LOCAL_SOURCE_DIR/modules/* $JBOSS_HOME/modules/
+fi
+
+function copy_injected {
+  source_dir=$1
+  target_dir=$2
+
+  if [ -d "$source_dir" ]; then
+    cp -rf ${source_dir}/* $target_dir
+  fi
+}
+
+if [ -n $CUSTOM_INSTALL_DIRECTORIES ]; then
+  IFS=',' read -a install_dir_entries <<< $CUSTOM_INSTALL_DIRECTORIES
+  for install_dir_entry in "${install_dir_entries[@]}"; do
+    for install_dir in $(find ${LOCAL_SOURCE_DIR}/$install_dir_entry -maxdepth 0 2>/dev/null); do
+      chmod -R 755 ${install_dir}
+      if [ -f ${install_dir}/install.sh ]; then
+        ${install_dir}/install.sh ${install_dir}
+      else
+        copy_injected ${install_dir}/modules $JBOSS_HOME/modules
+
+        copy_injected ${install_dir}/configuration $JBOSS_HOME/standalone/configuration
+
+        copy_artifacts ${install_dir}/deployments war ear rar jar
+      fi
+    done
+  done
+fi
+
+chmod -R g+rwX $HOME
+
+# Remove java tmp perf data dir owned by 185
+rm -rf /tmp/hsperfdata_jboss
+
+exit 0
