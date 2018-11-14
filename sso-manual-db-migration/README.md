@@ -1,5 +1,5 @@
-# Example of custom RH-SSO 7.2 configuration to perform manual migration of the existing RH-SSO database
+# Example of custom Red Hat Single Sign-On 7.3 TP CD configuration to perform manual migration of the existing Red Hat Single Sign-On database
 
-This example illustrates custom *standalone-openshift.xml* configuration to perform manual RH-SSO 7.1 to RH-SSO 7.2 database migration.
+This example illustrates custom configuration of the *_standalone-openshift.xml_* file to perform manual migration of the database used by previous version of the Red Hat Single Sign-On server to database format expected by the Red Hat Single Sign-On 7.3 Continuous Delivery for OpenShift (Technology Preview) release stream.
 
-For a step-by-step scenario on how to perform the RH-SSO database migration from version RH-SSO 7.1 to version RH-SSO 7.2, see the [Manual Database Migration](https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_sso_for_openshift/#manual-db-migration) section of the [Red Hat Single Sign-On for OpenShift guide](https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_sso_for_openshift/).
+For a step-by-step scenario on how to perform this migration, see the [Manual Database Migration](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on_continuous_delivery/7.3.0.cd03/html-single/red_hat_single_sign-on_for_openshift/#manual-db-migration) section of the [Red Hat Single Sign-On Continuous Delivery for OpenShift guide](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on_continuous_delivery/7.3.0.cd03/html-single/red_hat_single_sign-on_for_openshift/).
