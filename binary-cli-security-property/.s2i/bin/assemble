@@ -1,0 +1,7 @@
+#!/bin/bash
+set -ueo pipefail
+
+cd /tmp/src
+javac TestDNSCaching.java
+java TestDNSCaching # run this so S2I build logs contain the output
+jar cfe /deployments/TestDNSCaching.jar TestDNSCaching TestDNSCaching.class
