@@ -1,0 +1,12 @@
+# Created by buildmetadata-maven-plugin 1.7.0 ( SHA: 6f444cae ) 
+build.artifactId=jdg-remote-cache-materialization
+build.groupId=org.jboss.teiid.quickstart
+build.java.compiler=HotSpot 64-Bit Tiered Compilers
+build.java.runtime.name=OpenJDK Runtime Environment
+build.java.runtime.version=1.8.0_111-b15
+build.java.vendor=Oracle Corporation
+build.java.vm=OpenJDK 64-Bit Server VM
+build.maven.execution.cmdline=clean install
+build.maven.version=3.0.5
+build.version=3.0.0.redhat-63-10
+build.version.full=3.0.0.redhat-63-10
